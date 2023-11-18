@@ -1,14 +1,3 @@
-import {
-  createTRA,
-  signTRA,
-  sendTRA,
-  saveTA,
-  readTA,
-  isTAValid,
-} from "./loginTicketRequest";
-import { soapClient } from "./soapClient";
-import { saveToFile, readFromFile } from "./fileManager";
-
 import * as forge from "node-forge";
 import * as soap from "soap";
 import fs from "fs";
@@ -50,12 +39,10 @@ class AfipAuth {
     try {
       // Si no hay TA existente o está vencido, crea uno nuevo
       const tra = this.createTRA(service);
-      console.log("tra", tra);
+
       const signedTRA = this.signTRA(tra);
-      console.log("signedTRA", signedTRA);
 
       const newTA = await this.sendTRA(signedTRA);
-      console.log("newTA", newTA);
 
       // Guardar el nuevo TA
       this.saveTA(newTA, taPath);

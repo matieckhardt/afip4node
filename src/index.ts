@@ -55,17 +55,14 @@ app.get("/api/last-voucher", async (req, res) => {
       return res.status(400).json({ error: "Parámetros inválidos" });
     }
 
-    console.log(service);
-    console.log(cuit);
     const { token, sign } = await afipAuth.getAuthToken(cuit, service);
-    console.log("Token:", token, "Sign:", sign);
 
     const FECompUltimoAutorizado = await wsfeService.getLastVoucher(
-      salesPoint,
-      invoiceType,
-      cuit,
       token,
       sign,
+      cuit,
+      salesPoint,
+      invoiceType,
       service
     );
 
@@ -97,19 +94,126 @@ app.get("/api/sales-point", async (req, res) => {
       return res.status(400).json({ error: "Parámetros inválidos" });
     }
 
-    console.log(service);
-    console.log(cuit);
     const { token, sign } = await afipAuth.getAuthToken(cuit, service);
-    console.log("Token:", token, "Sign:", sign);
 
     const FECompUltimoAutorizado = await wsfeService.getSalesPoints(
+      cuit,
+      token,
+      sign,
+      salesPoint,
+      invoiceType,
+      service
+    );
+
+    // Devuelve el resultado (ajusta esto según lo que necesites)
+    res.json(FECompUltimoAutorizado);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "Se produjo un error desconocido" });
+    }
+  }
+});
+
+app.get("/afip/tiposCbte", async (req, res) => {
+  try {
+    const cuit = req.query.cuit;
+    const service = req.query.service;
+    const salesPoint = req.query.salesPoint;
+    const invoiceType = req.query.invoiceType;
+
+    // Asegúrate de que todos los parámetros son strings
+    if (
+      typeof cuit !== "string" ||
+      typeof service !== "string" ||
+      typeof salesPoint !== "string" ||
+      typeof invoiceType !== "string"
+    ) {
+      return res.status(400).json({ error: "Parámetros inválidos" });
+    }
+
+    const { token, sign } = await afipAuth.getAuthToken(cuit, service);
+
+    const FEParamGetTiposCbte = await wsfeService.getTiposCbte(
+      cuit,
+      token,
+      sign,
+      salesPoint,
+      invoiceType,
+      service
+    );
+
+    // Devuelve el resultado (ajusta esto según lo que necesites)
+    res.json(FEParamGetTiposCbte);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "Se produjo un error desconocido" });
+    }
+  }
+});
+
+app.get("/afip/tiposDoc", async (req, res) => {
+  try {
+    const cuit = req.query.cuit;
+    const service = req.query.service;
+    const salesPoint = req.query.salesPoint;
+    const invoiceType = req.query.invoiceType;
+
+    // Asegúrate de que todos los parámetros son strings
+    if (
+      typeof cuit !== "string" ||
+      typeof service !== "string" ||
+      typeof salesPoint !== "string" ||
+      typeof invoiceType !== "string"
+    ) {
+      return res.status(400).json({ error: "Parámetros inválidos" });
+    }
+
+    const { token, sign } = await afipAuth.getAuthToken(cuit, service);
+
+    const FEParamGetTiposDoc = await wsfeService.getTiposDoc(cuit, token, sign);
+
+    // Devuelve el resultado (ajusta esto según lo que necesites)
+    res.json(FEParamGetTiposDoc);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "Se produjo un error desconocido" });
+    }
+  }
+});
+
+app.get("/afip/tiposConc", async (req, res) => {
+  try {
+    const cuit = req.query.cuit;
+    const service = req.query.service;
+    const salesPoint = req.query.salesPoint;
+    const invoiceType = req.query.invoiceType;
+
+    // Asegúrate de que todos los parámetros son strings
+    if (
+      typeof cuit !== "string" ||
+      typeof service !== "string" ||
+      typeof salesPoint !== "string" ||
+      typeof invoiceType !== "string"
+    ) {
+      return res.status(400).json({ error: "Parámetros inválidos" });
+    }
+
+    const { token, sign } = await afipAuth.getAuthToken(cuit, service);
+
+    const FEParamGetTiposConcepto = await wsfeService.getTiposConcepto(
       cuit,
       token,
       sign
     );
 
     // Devuelve el resultado (ajusta esto según lo que necesites)
-    res.json(FECompUltimoAutorizado);
+    res.json(FEParamGetTiposConcepto);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ error: error.message });
@@ -162,7 +266,7 @@ app.get("/afip/server-status", async (req, res) => {
         .json({ error: "No se pudo obtener el token o la firma" });
     }
 
-    const serverStatus = await wsfeService.checkServerStatus(cuit, token, sign);
+    const serverStatus = await wsfeService.checkServerStatus();
     res.json(serverStatus);
   } catch (error) {
     if (error instanceof Error) {

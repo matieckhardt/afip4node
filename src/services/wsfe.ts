@@ -5,130 +5,89 @@ import fs from "fs";
 import path from "path";
 import * as xml2js from "xml2js";
 const isProduction = "production";
+import { FEDummyService } from "./wsfe/FEDummy";
+import { FECompUltimoAutorizado } from "./wsfe/FECompUltimoAutorizado"; // Asegúrate de que la ruta sea correcta
+import { FEParamGetPtosVenta } from "./wsfe/FEParamGetPtosVenta"; // Asegúrate de que la ruta sea correcta
+import { FEParamGetTiposCbte } from "./wsfe/FEParamGetTiposCbte"; // Asegúrate de que la ruta sea correcta
+import { FEParamGetTiposDoc } from "./wsfe/FEParamGetTiposDoc"; // Asegúrate de que la ruta sea correcta
+import { FEParamGetTiposConcepto } from "./wsfe/FEParamGetTiposConcepto"; // Asegúrate de que la ruta sea correcta
 
 export class WsfeService {
   private afipAuth: AfipAuth;
   private wsfeWSDL: string;
+  private dummyService: FEDummyService;
+  private ultimoAutorizadoService: FECompUltimoAutorizado;
+  private ptosVetaDisponibles: FEParamGetPtosVenta;
+  private TiposCbte: FEParamGetTiposCbte;
+  private TiposDoc: FEParamGetTiposDoc;
+  private TiposConc: FEParamGetTiposConcepto;
 
   constructor(afipAuth: AfipAuth) {
     this.afipAuth = afipAuth;
     this.wsfeWSDL = path.resolve(__dirname, "../wsdl/wsfe-production.wsdl"); // Ajusta la ruta según sea necesario
+    this.dummyService = new FEDummyService(this.wsfeWSDL);
+    this.ultimoAutorizadoService = new FECompUltimoAutorizado(this.wsfeWSDL);
+    this.ptosVetaDisponibles = new FEParamGetPtosVenta(this.wsfeWSDL);
+    this.TiposCbte = new FEParamGetTiposCbte(this.wsfeWSDL);
+    this.TiposDoc = new FEParamGetTiposDoc(this.wsfeWSDL);
+    this.TiposConc = new FEParamGetTiposConcepto(this.wsfeWSDL);
   }
 
   async getLastVoucher(
-    salesPoint: string,
-    invoiceType: string,
     cuit: string,
     token: string,
     sign: string,
+    salesPoint: string,
+    invoiceType: string,
     service: string
   ): Promise<any> {
-    // Crear un cliente SOAP utilizando wsfeWSDL
-    const soapClient = await soap.createClientAsync(this.wsfeWSDL);
-
-    // Construir el cuerpo de la solicitud según la especificación del servicio WSFE
-    const requestBody = {
-      Auth: { Token: token, Sign: sign, Cuit: cuit },
-      PtoVta: salesPoint,
-      CbteTipo: invoiceType,
-    };
-
-    try {
-      // Realizar la llamada SOAP al servicio WSFE
-      const response = await soapClient.FECompUltimoAutorizadoAsync(
-        requestBody
-      );
-      console.log(
-        "Respuesta del WSFE:",
-        response[0].FECompUltimoAutorizadoResult.CbteNro
-      );
-      const parsedResponse = response[0].FECompUltimoAutorizadoResult;
-      // Analizar y devolver la respuesta
-      // Ajusta esta parte según la estructura real de la respuesta del WSFE
-
-      return parsedResponse; // Ejemplo: asumiendo que los datos relevantes están en el primer elemento del array de respuesta
-    } catch (error) {
-      // Manejar cualquier error que ocurra durante la llamada SOAP
-      if (error instanceof Error) {
-        // Ahora TypeScript sabe que 'error' es de tipo Error y puedes acceder a 'error.message'
-        throw new Error(
-          `Error al obtener el último comprobante: ${error.message}`
-        );
-      } else {
-        // Si no es una instancia de Error, manejarlo como un error genérico
-        throw new Error(`Error al obtener el último comprobante`);
-      }
-    }
+    return this.ultimoAutorizadoService.getLastVoucher(
+      cuit,
+      token,
+      sign,
+      salesPoint,
+      invoiceType,
+      service
+    );
   }
 
   async getSalesPoints(
     cuit: string,
     token: string,
-    sign: string
+    sign: string,
+    salesPoint: string,
+    invoiceType: string,
+    service: string
   ): Promise<any> {
-    // Crear un cliente SOAP utilizando wsfeWSDL
-    const soapClient = await soap.createClientAsync(this.wsfeWSDL);
-
-    // Construir el cuerpo de la solicitud según la especificación del servicio WSFE
-    const requestBody = {
-      Auth: { Token: token, Sign: sign, Cuit: cuit },
-    };
-
-    try {
-      // Realizar la llamada SOAP al servicio WSFE
-      const response = await soapClient.FEParamGetPtosVentaAsync({
-        Auth: requestBody.Auth,
-      });
-      console.log("Respuesta del WSFE para puntos de venta:", response);
-
-      // Analizar y devolver la respuesta
-      // La estructura de la respuesta dependerá de cómo AFIP estructura sus respuestas SOAP
-      const parsedResponse = response[0].FEParamGetPtosVentaResult.ResultGet;
-      return parsedResponse;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Error al obtener puntos de venta: ${error.message}`);
-      } else {
-        throw new Error(`Error al obtener puntos de venta`);
-      }
-    }
+    return this.ptosVetaDisponibles.getSalesPoints(cuit, token, sign);
   }
 
-  async checkServerStatus(
+  async getTiposCbte(
+    cuit: string,
+    token: string,
+    sign: string,
+    salesPoint: string,
+    invoiceType: string,
+    service: string
+  ): Promise<any> {
+    return this.TiposCbte.getTiposCbte(cuit, token, sign);
+  }
+  async getTiposDoc(cuit: string, token: string, sign: string): Promise<any> {
+    return this.TiposDoc.getTiposDoc(cuit, token, sign);
+  }
+  async checkServerStatus(): Promise<any> {
+    const certPath = "./src/certs/cert";
+    const keyPath = "./src/certs/key";
+
+    return this.dummyService.checkServerStatus();
+  }
+
+  async getTiposConcepto(
     cuit: string,
     token: string,
     sign: string
   ): Promise<any> {
-    // Asegúrate de que las rutas al certificado y la clave sean correctas
-
-    const cert = fs.readFileSync(path.resolve("./src/certs/cert"), "utf8");
-    const key = fs.readFileSync(path.resolve("./src/certs/key"), "utf8");
-
-    const options = {
-      wsdl_options: {
-        cert: cert,
-        key: key,
-      },
-    };
-
-    try {
-      const soapClient = await soap.createClientAsync(this.wsfeWSDL, options);
-      const result = await soapClient.FEDummyAsync({});
-      const { AppServer, DbServer, AuthServer } = result[0].FEDummyResult;
-
-      const afipStatus = {
-        status:
-          AppServer === "OK" && DbServer === "OK" && AuthServer === "OK"
-            ? "Online"
-            : "Offline",
-      };
-
-      console.log("AFIP Server Status", afipStatus);
-      return afipStatus;
-    } catch (error) {
-      console.error("Error calling AFIP Server Status:", error);
-      throw new Error("Error al verificar el estado del servidor AFIP");
-    }
+    return this.TiposConc.getTiposConcepto(cuit, token, sign);
   }
 
   async createInvoice(
@@ -139,9 +98,8 @@ export class WsfeService {
   ): Promise<any> {
     const soapClient = await soap.createClientAsync(this.wsfeWSDL);
 
-    // Preparación de los datos de la factura
     let formattedInvoiceData = {
-      ...invoiceData, // Copia todos los campos de invoiceData
+      ...invoiceData,
       ImpTotal: invoiceData.ImpTotal.toString(),
       ImpTotConc: invoiceData.ImpTotConc.toString(),
       ImpNeto: invoiceData.ImpNeto.toString(),
@@ -163,12 +121,10 @@ export class WsfeService {
         : undefined,
     };
 
-    // Elimina los campos que ya no son necesarios en el detalle de la solicitud
     delete formattedInvoiceData.CantReg;
     delete formattedInvoiceData.PtoVta;
     delete formattedInvoiceData.CbteTipo;
 
-    // Creación de la solicitud
     const requestBody = {
       Auth: { Token: token, Sign: sign, Cuit: cuit },
       FeCAEReq: {
@@ -198,6 +154,4 @@ export class WsfeService {
       }
     }
   }
-
-  // Additional helper methods as needed
 }
