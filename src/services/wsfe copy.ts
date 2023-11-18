@@ -5,12 +5,18 @@ import fs from "fs";
 import path from "path";
 import * as xml2js from "xml2js";
 const isProduction = "production";
+
 import { FEDummyService } from "./wsfe/FEDummy";
 import { FECompUltimoAutorizado } from "./wsfe/FECompUltimoAutorizado"; // Asegúrate de que la ruta sea correcta
 import { FEParamGetPtosVenta } from "./wsfe/FEParamGetPtosVenta"; // Asegúrate de que la ruta sea correcta
 import { FEParamGetTiposCbte } from "./wsfe/FEParamGetTiposCbte"; // Asegúrate de que la ruta sea correcta
 import { FEParamGetTiposDoc } from "./wsfe/FEParamGetTiposDoc"; // Asegúrate de que la ruta sea correcta
 import { FEParamGetTiposConcepto } from "./wsfe/FEParamGetTiposConcepto"; // Asegúrate de que la ruta sea correcta
+import { FEParamGetTiposIva } from "./wsfe/FEParamGetTiposIva"; // Asegúrate de que la ruta sea correcta
+import { FEParamGetTiposMonedas } from "./wsfe/FEParamGetTiposMonedas"; // Asegúrate de que la ruta sea correcta
+import { FEParamGetTiposOpcionales } from "./wsfe/FEParamGetTiposOpcionales"; // Asegúrate de que la ruta sea correcta
+import { FEParamGetTiposPaises } from "./wsfe/FEParamGetTiposPaises"; // Asegúrate de que la ruta sea correcta
+import { FEParamGetTiposTributos } from "./wsfe/FEParamGetTiposTributos"; // Asegúrate de que la ruta sea correcta
 
 export class WsfeService {
   private afipAuth: AfipAuth;
@@ -21,6 +27,9 @@ export class WsfeService {
   private TiposCbte: FEParamGetTiposCbte;
   private TiposDoc: FEParamGetTiposDoc;
   private TiposConc: FEParamGetTiposConcepto;
+  private TiposIva: FEParamGetTiposIva;
+  private TiposMonedas: FEParamGetTiposMonedas;
+  private TiposOpcionales: FEParamGetTiposOpcionales;
 
   constructor(afipAuth: AfipAuth) {
     this.afipAuth = afipAuth;
@@ -31,6 +40,9 @@ export class WsfeService {
     this.TiposCbte = new FEParamGetTiposCbte(this.wsfeWSDL);
     this.TiposDoc = new FEParamGetTiposDoc(this.wsfeWSDL);
     this.TiposConc = new FEParamGetTiposConcepto(this.wsfeWSDL);
+    this.TiposIva = new FEParamGetTiposIva(this.wsfeWSDL);
+    this.TiposMonedas = new FEParamGetTiposMonedas(this.wsfeWSDL);
+    this.TiposOpcionales = new FEParamGetTiposOpcionales(this.wsfeWSDL);
   }
 
   async getLastVoucher(
@@ -88,6 +100,25 @@ export class WsfeService {
     sign: string
   ): Promise<any> {
     return this.TiposConc.getTiposConcepto(cuit, token, sign);
+  }
+
+  async getTiposIva(cuit: string, token: string, sign: string): Promise<any> {
+    return this.TiposIva.getTiposIva(cuit, token, sign);
+  }
+
+  async getTiposMonedas(
+    cuit: string,
+    token: string,
+    sign: string
+  ): Promise<any> {
+    return this.TiposMonedas.getTiposMonedas(cuit, token, sign);
+  }
+  async getTiposOpcionales(
+    cuit: string,
+    token: string,
+    sign: string
+  ): Promise<any> {
+    return this.TiposOpcionales.getTiposOpcionales(cuit, token, sign);
   }
 
   async createInvoice(

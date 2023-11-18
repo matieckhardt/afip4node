@@ -1,36 +1,32 @@
-// services/wsfe/FECAEAInformar.ts
+// services/wsfe/FECAEAConsultar.ts
 import * as soap from "soap";
 
-export class FECAEASinMovimientoConsultar {
+export class FECAEAConsultarService {
   private wsfeWSDL: string;
 
   constructor(wsfeWSDL: string) {
     this.wsfeWSDL = wsfeWSDL;
   }
 
-  async informarCAEA(
+  async consultarCAEA(
     cuit: string,
     token: string,
     sign: string,
     PtoVta: number,
-    CbteTipo: number,
     Periodo: number,
     Orden: number
   ): Promise<any> {
     const soapClient = await soap.createClientAsync(this.wsfeWSDL);
     const requestBody = {
       Auth: { Token: token, Sign: sign, Cuit: cuit },
-      FeCAEARegInfReq: {
-        PtoVta: PtoVta,
-        CbteTipo: CbteTipo,
-        Periodo: Periodo,
-        Orden: Orden,
-      },
+      PtoVta: PtoVta,
+      Periodo: Periodo,
+      Orden: Orden,
     };
 
     try {
-      const response = await soapClient.FECAEAInformarAsync(requestBody);
-      return response[0].FECAEAInformarResult;
+      const response = await soapClient.FECAEAConsultarAsync(requestBody);
+      return response[0].FECAEAConsultarResult; // Ajusta según la estructura de la respuesta de AFIP
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Error en FECAEAInformar: ${error.message}`);
