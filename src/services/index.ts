@@ -1,4 +1,4 @@
-import { AfipAuth } from "./wsaa";
+import { AfipAuth } from "./AfipAuthWSFE";
 import * as soap from "soap";
 import fs from "fs";
 import path from "path";
@@ -120,8 +120,7 @@ export class WsfeService {
     cuit: string,
     token: string,
     sign: string,
-    salesPoint: string,
-    invoiceType: string,
+
     service: string
   ): Promise<any> {
     return this.ptosVentaService.getSalesPoints(cuit, token, sign);
@@ -315,6 +314,7 @@ export class WsfeService {
     invoiceData: any
   ): Promise<any> {
     const soapClient = await soap.createClientAsync(this.wsfeWSDL);
+    console.log("antes de mandar por soap", invoiceData);
 
     let formattedInvoiceData = {
       ...invoiceData,
@@ -339,10 +339,44 @@ export class WsfeService {
         : undefined,
     };
 
-    delete formattedInvoiceData.CantReg;
-    delete formattedInvoiceData.PtoVta;
-    delete formattedInvoiceData.CbteTipo;
+    let dataToAuth = {
+      CantReg: "1",
+      CbteDesde: invoiceData.CbteDesde.toString(),
+      CbteFch: invoiceData.CbteFch,
+      CbteHasta: invoiceData.CbteHasta.toString(),
+      CbteTipo: invoiceData.CbteTipo.toString(),
+      Concepto: invoiceData.Concepto.toString(),
+      DocNro: invoiceData.DocNro.toString(),
+      DocTipo: invoiceData.DocTipo.toString(),
+      ImpIVA: invoiceData.ImpIVA.toString(),
+      ImpNeto: invoiceData.ImpNeto.toString(),
+      ImpOpEx: invoiceData.ImpOpEx.toString(),
+      ImpTotal: invoiceData.ImpTotal.toString(),
+      ImpTotConc: invoiceData.ImpTotConc.toString(),
+      ImpTrib: invoiceData.ImpTrib.toString(),
+      Iva: invoiceData.Iva ? { AlicIva: invoiceData.Iva } : undefined,
+      MonCotiz: 1,
+      MonId: "PES",
+      PtoVta: invoiceData.PtoVta.toString(),
+      CbtesAsoc: invoiceData?.CbtesAsoc || null,
+      FchServDesde:
+        invoiceData.Concepto === 2 || invoiceData.Concepto === 3
+          ? invoiceData.CbteFch
+          : null,
+      FchServHasta:
+        invoiceData.Concepto === 2 || invoiceData.Concepto === 3
+          ? invoiceData.CbteFch
+          : null,
+      FchVtoPago:
+        invoiceData.Concepto === 2 || invoiceData.Concepto === 3
+          ? invoiceData.CbteFch
+          : null,
+    };
 
+    //  delete formattedInvoiceData.CantReg;
+    //  delete formattedInvoiceData.PtoVta;
+    //  delete formattedInvoiceData.CbteTipo;
+    console.log("antes dformattedInvoiceData", dataToAuth);
     const requestBody = {
       Auth: { Token: token, Sign: sign, Cuit: cuit },
       FeCAEReq: {
@@ -352,22 +386,25 @@ export class WsfeService {
           CbteTipo: invoiceData.CbteTipo,
         },
         FeDetReq: {
-          FECAEDetRequest: [formattedInvoiceData],
+          FECAEDetRequest: [dataToAuth],
         },
       },
     };
-
     try {
       const response = await soapClient.FECAESolicitarAsync(requestBody);
       console.log(
         "RESPONSE COMPLETA de creación de factura:",
         response[0].FECAESolicitarResult
       );
+
       return response[0].FECAESolicitarResult;
     } catch (error) {
       if (error instanceof Error) {
+        console.log("caca", error);
         throw new Error(`Error al crear la factura: ${error.message}`);
       } else {
+        console.log("caca2");
+
         throw new Error(`Error al crear la factura`);
       }
     }

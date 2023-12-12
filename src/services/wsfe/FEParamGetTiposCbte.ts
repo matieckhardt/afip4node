@@ -25,6 +25,7 @@ export class FEParamGetTiposCbte {
       // Analizar y devolver la respuesta
       // La estructura de la respuesta dependerá de cómo AFIP estructura sus respuestas SOAP
       const parsedResponse = response[0].FEParamGetTiposCbteResult.ResultGet;
+      console.log(response[0].FEParamGetTiposCbteResult.ResultGet);
       return parsedResponse;
     } catch (error) {
       if (error instanceof Error) {

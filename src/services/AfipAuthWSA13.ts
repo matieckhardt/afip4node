@@ -3,61 +3,54 @@ import * as soap from "soap";
 import fs from "fs";
 import path from "path";
 import * as xml2js from "xml2js";
+const isProduction = "production";
 
-class AfipAuth {
+const certificate = fs.readFileSync(path.resolve("./src/certs/cert"), "utf8");
+const privateKey = fs.readFileSync(path.resolve("./src/certs/key"), "utf8");
+
+class AfipAuthWSA13 {
   private wsaaWSDL: string;
   private wsaaUrl: string;
-  private serviceCertificates: Map<
-    string,
-    { certificate: string; privateKey: string }
-  >;
+  private certificate: string;
+  private privateKey: string;
 
   constructor(privateKeyPath: string, certPath: string, production: boolean) {
     this.wsaaWSDL = path.resolve(__dirname, "../certs/wsaa.wsdl");
-    this.wsaaUrl = production
-      ? "https://wsaa.afip.gov.ar/ws/services/LoginCms"
-      : "https://wsaahomo.afip.gov.ar/ws/services/LoginCms";
-    this.serviceCertificates = new Map();
-    this.loadServiceCertificates(privateKeyPath, certPath);
-  }
-
-  private loadServiceCertificates(
-    privateKeyPath: string,
-    certPath: string
-  ): void {
-    // Load and store certificates for different services here
-    // For example, if you have different certificates for each service, load them accordingly
-    // For simplicity, this example assumes the same certificate for all services, modify as needed
-    const certificate = fs.readFileSync(path.resolve(certPath), "utf8");
-    const privateKey = fs.readFileSync(path.resolve(privateKeyPath), "utf8");
-    this.serviceCertificates.set("defaultService", { certificate, privateKey });
-    // Add more services as needed
+    this.wsaaUrl = isProduction;
+    (this.certificate = certificate),
+      (this.privateKey = privateKey),
+      (this.wsaaUrl = "https://wsaa.afip.gov.ar/ws/services/LoginCms");
   }
 
   async getAuthToken(
     cuit: string,
     service: string
   ): Promise<{ token: string; sign: string }> {
-    const taFileName = `TA-${service}-${cuit}.json`;
+    const taFileName = `TA-WSA13-${cuit}.json`;
     const taPath = path.resolve(__dirname, `../certs/${taFileName}`);
-    const existingTA = this.readTA(taPath);
 
+    // Primero intenta leer un TA existente
+    const existingTA = this.readTA(taPath);
     if (existingTA && this.isTAValid(existingTA)) {
+      // Si el TA existente es válido, devuélvelo
       return existingTA;
     }
 
     try {
-      const { certificate, privateKey } =
-        this.serviceCertificates.get(service) ||
-        this.serviceCertificates.get("defaultService");
+      // Si no hay TA existente o está vencido, crea uno nuevo
       const tra = this.createTRA(service);
-      const signedTRA = this.signTRA(tra, privateKey, certificate);
+
+      const signedTRA = this.signTRA(tra);
+
       const newTA = await this.sendTRA(signedTRA);
+
+      // Guardar el nuevo TA
       this.saveTA(newTA, taPath);
+
       return newTA;
     } catch (error) {
       console.error("Error al obtener el token de autenticación:", error);
-      throw error;
+      throw error; // Propagar el error para un manejo externo
     }
   }
 
@@ -174,4 +167,4 @@ class AfipAuth {
   }
 }
 
-export { AfipAuth };
+export { AfipAuthWSA13 };

@@ -1,6 +1,8 @@
 import express from "express";
-import { AfipAuth } from "../services/wsaa";
+import { AfipAuth } from "../services/AfipAuthWSFE";
+import { AfipAuthWSA13 } from "../services/AfipAuthWSA13";
 import { WsfeService } from "../services";
+import { Wsa13Service } from "../services/wsa13";
 
 const router = express.Router();
 
@@ -10,8 +12,14 @@ const afipAuth = new AfipAuth(
   false
 );
 
-const wsfeService = new WsfeService(afipAuth);
+const afipAuthWSA13 = new AfipAuthWSA13(
+  "./src/certs/privateKey.pem",
+  "./src/certs/cert.pem",
+  false
+);
 
+const wsfeService = new WsfeService(afipAuth);
+const wsa13Service = new Wsa13Service(afipAuth);
 // Aquí van todas tus rutas relacionadas con AFIP
 // Por ejemplo:
 
@@ -37,14 +45,13 @@ router.get("/afip", async (req, res) => {
 router.get("/afip/last-voucher", async (req, res) => {
   try {
     const cuit = req.query.cuit;
-    const service = req.query.service;
+    const service = "wsfe";
     const salesPoint = req.query.salesPoint;
     const invoiceType = req.query.invoiceType;
 
     // Asegúrate de que todos los parámetros son strings
     if (
       typeof cuit !== "string" ||
-      typeof service !== "string" ||
       typeof salesPoint !== "string" ||
       typeof invoiceType !== "string"
     ) {
@@ -75,34 +82,25 @@ router.get("/afip/last-voucher", async (req, res) => {
 
 router.get("/afip/sales-point", async (req, res) => {
   try {
-    const cuit = req.query.cuit;
-    const service = req.query.service;
-    const salesPoint = req.query.salesPoint;
-    const invoiceType = req.query.invoiceType;
+    const cuit = "30517024054";
+    const service = "wsfe";
 
     // Asegúrate de que todos los parámetros son strings
-    if (
-      typeof cuit !== "string" ||
-      typeof service !== "string" ||
-      typeof salesPoint !== "string" ||
-      typeof invoiceType !== "string"
-    ) {
+    if (typeof cuit !== "string" || typeof service !== "string") {
       return res.status(400).json({ error: "Parámetros inválidos" });
     }
 
     const { token, sign } = await afipAuth.getAuthToken(cuit, service);
 
-    const FECompUltimoAutorizado = await wsfeService.getSalesPoints(
+    const FEParamGetPtosVenta = await wsfeService.getSalesPoints(
       cuit,
       token,
       sign,
-      salesPoint,
-      invoiceType,
       service
     );
-
+    //console.log(FEParamGetPtosVenta);
     // Devuelve el resultado (ajusta esto según lo que necesites)
-    res.json(FECompUltimoAutorizado);
+    res.json(FEParamGetPtosVenta);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ error: error.message });
@@ -348,9 +346,16 @@ router.get("/afip/server-status", async (req, res) => {
 
 router.post("/afip/create-invoice", async (req, res) => {
   try {
-    const cuit = "23337876609"; // Debes obtener el CUIT de alguna manera
-    const service = "wsfe"; // O el servicio correspondiente
+    const cuit = req.query.cuit; // Debes obtener el CUIT de alguna manera
 
+    const service = "wsfe"; // O el servicio correspondiente
+    const salesPoint = req.body.PtoVta;
+    const invoiceType = req.body.CbteTipo;
+    if (typeof cuit !== "string" || typeof service !== "string") {
+      return res.status(400).json({
+        error: "Invalid parameters: cuit and service must be strings",
+      });
+    }
     const { token, sign } = await afipAuth.getAuthToken(cuit, service);
     if (!token || !sign) {
       return res
@@ -358,7 +363,21 @@ router.post("/afip/create-invoice", async (req, res) => {
         .json({ error: "No se pudo obtener el token o la firma" });
     }
 
-    const invoiceData = req.body; // Asume que los datos de la factura vienen en el cuerpo de la solicitud
+    const FECompUltimoAutorizado = await wsfeService.getLastVoucher(
+      token,
+      sign,
+      cuit,
+      salesPoint,
+      invoiceType,
+      service
+    );
+    console.log("ultimo autorizado create", FECompUltimoAutorizado.CbteNro);
+
+    const invoiceData = req.body;
+    invoiceData.CbteDesde = FECompUltimoAutorizado.CbteNro + 1;
+    invoiceData.CbteHasta = FECompUltimoAutorizado.CbteNro + 1;
+
+    console.log("invoice Data", invoiceData);
     const invoiceResponse = await wsfeService.createInvoice(
       cuit,
       token,
@@ -482,4 +501,47 @@ router.post("/afip/caea-consultar", async (req, res) => {
     }
   }
 });
+
+router.get("/afip/constancia", async (req, res) => {
+  try {
+    const documento = req.query.documento as string;
+    const cuit = req.query.cuit as string;
+
+    const { token, sign } = await afipAuthWSA13.getAuthToken(
+      cuit,
+      "ws_sr_padron_a13"
+    );
+
+    if (documento.length === 11) {
+      const cuitInfo = await wsa13Service.getCUIT(cuit, token, sign, documento);
+      res.json(cuitInfo);
+    } else {
+      const cuitList = await wsa13Service.getDNI(cuit, token, sign, documento);
+      if (cuitList.length === 1) {
+        const personaInfo = await wsa13Service.getCUIT(
+          cuit,
+          token,
+          sign,
+          cuitList[0]
+        );
+        res.json(personaInfo);
+      } else {
+        const allInfo = await Promise.all(
+          cuitList.map(
+            async (documento: string) =>
+              await wsa13Service.getCUIT(cuit, token, sign, documento)
+          )
+        );
+        res.json(allInfo);
+      }
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "Se produjo un error desconocido" });
+    }
+  }
+});
+
 export default router;

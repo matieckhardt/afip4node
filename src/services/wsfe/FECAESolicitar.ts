@@ -61,8 +61,11 @@ export class FECAESolicitar {
       const response = await soapClient.FECAESolicitarAsync(requestBody);
       console.log(
         "RESPONSE COMPLETA de creación de factura:",
-        response[0].FECAESolicitarResult
+        response[0].FECAESolicitarResult.Observaciones.Obs
       );
+      if (response[0].FECAESolicitarResult.Resultado === "R") {
+        console.log(response[0].FECAESolicitarResult[0].Observaciones.Obs);
+      }
       return response[0].FECAESolicitarResult;
     } catch (error) {
       if (error instanceof Error) {

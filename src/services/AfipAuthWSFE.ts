@@ -26,7 +26,7 @@ class AfipAuth {
     cuit: string,
     service: string
   ): Promise<{ token: string; sign: string }> {
-    const taFileName = `TA-${cuit}.json`;
+    const taFileName = `TA-WSFE-${cuit}.json`;
     const taPath = path.resolve(__dirname, `../certs/${taFileName}`);
 
     // Primero intenta leer un TA existente
@@ -39,12 +39,10 @@ class AfipAuth {
     try {
       // Si no hay TA existente o está vencido, crea uno nuevo
       const tra = this.createTRA(service);
-      console.log("tra", tra);
+
       const signedTRA = this.signTRA(tra);
-      console.log("signedTRA", signedTRA);
 
       const newTA = await this.sendTRA(signedTRA);
-      console.log("newTA", newTA);
 
       // Guardar el nuevo TA
       this.saveTA(newTA, taPath);

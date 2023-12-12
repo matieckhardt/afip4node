@@ -1,4 +1,4 @@
-import { AfipAuth } from "./wsaa";
+import { AfipAuth } from "./AfipAuthWSFE";
 import * as forge from "node-forge";
 import * as soap from "soap";
 import fs from "fs";

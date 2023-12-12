@@ -29,6 +29,8 @@ export class FEParamGetPtosVenta {
       // Analizar y devolver la respuesta
       // La estructura de la respuesta dependerá de cómo AFIP estructura sus respuestas SOAP
       const parsedResponse = response[0].FEParamGetPtosVentaResult.ResultGet;
+      console.log(response[0]);
+      //console.log(response[0].FEParamGetPtosVentaResult.Errors.Err);
       return parsedResponse;
     } catch (error) {
       if (error instanceof Error) {
