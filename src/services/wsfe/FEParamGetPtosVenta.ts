@@ -12,32 +12,38 @@ export class FEParamGetPtosVenta {
     token: string,
     sign: string
   ): Promise<any> {
-    // Crear un cliente SOAP utilizando wsfeWSDL
+    // Create a SOAP client using wsfeWSDL
     const soapClient = await soap.createClientAsync(this.wsfeWSDL);
 
-    // Construir el cuerpo de la solicitud según la especificación del servicio WSFE
+    // Build the request body according to the WSFE service specification
     const requestBody = {
       Auth: { Token: token, Sign: sign, Cuit: cuit },
     };
 
     try {
-      // Realizar la llamada SOAP al servicio WSFE
+      // Perform the SOAP call to the WSFE service
       const response = await soapClient.FEParamGetPtosVentaAsync({
         Auth: requestBody.Auth,
       });
 
-      // Analizar y devolver la respuesta
-      // La estructura de la respuesta dependerá de cómo AFIP estructura sus respuestas SOAP
-      const parsedResponse = response[0].FEParamGetPtosVentaResult.ResultGet;
-      console.log(response[0]);
-      //console.log(response[0].FEParamGetPtosVentaResult.Errors.Err);
+      // Check for errors in the response
+      const result = response[0].FEParamGetPtosVentaResult;
+      if (result.Errors) {
+        // Handle the error scenario
+        const errors = result.Errors.Err;
+        throw new Error(`Error response from AFIP: ${JSON.stringify(errors)}`);
+      }
+
+      // If no errors, process the successful response
+      const parsedResponse = result.ResultGet;
       return parsedResponse;
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Error al obtener puntos de venta: ${error.message}`);
-      } else {
-        throw new Error(`Error al obtener puntos de venta`);
-      }
+      console.error("SOAP Service Error:", error);
+      throw new Error(
+        `Error al obtener puntos de venta: ${
+          error instanceof Error ? error.message : "Unknown Error"
+        }`
+      );
     }
   }
 }

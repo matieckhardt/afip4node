@@ -82,9 +82,10 @@ router.get("/afip/last-voucher", async (req, res) => {
 
 router.get("/afip/sales-point", async (req, res) => {
   try {
-    const cuit = "30517024054";
-    const service = "wsfe";
+    const cuit = process.env.CUIT;
+    const service = process.env.SERVICE;
 
+    console.log(cuit, service);
     // Asegúrate de que todos los parámetros son strings
     if (typeof cuit !== "string" || typeof service !== "string") {
       return res.status(400).json({ error: "Parámetros inválidos" });
@@ -98,15 +99,12 @@ router.get("/afip/sales-point", async (req, res) => {
       sign,
       service
     );
-    //console.log(FEParamGetPtosVenta);
-    // Devuelve el resultado (ajusta esto según lo que necesites)
     res.json(FEParamGetPtosVenta);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ error: error.message });
-    } else {
-      res.status(500).json({ error: "Se produjo un error desconocido" });
-    }
+    console.error("Route Error:", error);
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    });
   }
 });
 
