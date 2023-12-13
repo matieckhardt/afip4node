@@ -1,8 +1,10 @@
 import express from "express";
 import { AfipAuth } from "../services/AfipAuthWSFE";
 import { AfipAuthWSA13 } from "../services/AfipAuthWSA13";
+import { AfipAuthWSA5 } from "../services/AfipAuthWSA5";
 import { WsfeService } from "../services";
 import { Wsa13Service } from "../services/wsa13";
+import { Wsa5Service } from "../services/wsa5";
 
 const router = express.Router();
 
@@ -17,9 +19,15 @@ const afipAuthWSA13 = new AfipAuthWSA13(
   "./src/certs/cert.pem",
   false
 );
+const afipAuthWSA5 = new AfipAuthWSA5(
+  "./src/certs/privateKey.pem",
+  "./src/certs/cert.pem",
+  false
+);
 
 const wsfeService = new WsfeService(afipAuth);
 const wsa13Service = new Wsa13Service(afipAuth);
+const wsa5Service = new Wsa5Service(afipAuth);
 // Aquí van todas tus rutas relacionadas con AFIP
 // Por ejemplo:
 
@@ -528,6 +536,48 @@ router.get("/afip/constancia", async (req, res) => {
           cuitList.map(
             async (documento: string) =>
               await wsa13Service.getCUIT(cuit, token, sign, documento)
+          )
+        );
+        res.json(allInfo);
+      }
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "Se produjo un error desconocido" });
+    }
+  }
+});
+
+router.get("/afip/persona", async (req, res) => {
+  try {
+    const documento = req.query.documento as string;
+    const cuit = req.query.cuit as string;
+
+    const { token, sign } = await afipAuthWSA5.getAuthToken(
+      cuit,
+      "ws_sr_padron_a5"
+    );
+
+    if (documento.length === 11) {
+      const cuitInfo = await wsa5Service.getCUIT(cuit, token, sign, documento);
+      res.json(cuitInfo);
+    } else {
+      const cuitList = await wsa5Service.getDNI(cuit, token, sign, documento);
+      if (cuitList.length === 1) {
+        const personaInfo = await wsa5Service.getCUIT(
+          cuit,
+          token,
+          sign,
+          cuitList[0]
+        );
+        res.json(personaInfo);
+      } else {
+        const allInfo = await Promise.all(
+          cuitList.map(
+            async (documento: string) =>
+              await wsa5Service.getCUIT(cuit, token, sign, documento)
           )
         );
         res.json(allInfo);
