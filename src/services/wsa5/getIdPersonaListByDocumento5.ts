@@ -1,10 +1,10 @@
 import * as soap from "soap";
 
 export class GetIdPersonaListByDocumento {
-  private wsA13WSDL: string;
+  private wsA5WSDL: string;
 
-  constructor(wsA13WSDL: string) {
-    this.wsA13WSDL = wsA13WSDL;
+  constructor(wsA5WSDL: string) {
+    this.wsA5WSDL = wsA5WSDL;
   }
 
   async getIdPersonaListByDocumento(
@@ -13,7 +13,7 @@ export class GetIdPersonaListByDocumento {
     sign: string,
     documento: string
   ): Promise<any> {
-    const soapClient = await soap.createClientAsync(this.wsA13WSDL);
+    const soapClient = await soap.createClientAsync(this.wsA5WSDL);
 
     const requestBody = {
       token: token,

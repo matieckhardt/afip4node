@@ -1,10 +1,10 @@
 import * as soap from "soap";
 
 export class GetPersona {
-  private wsA13WSDL: string;
+  private wsA5WSDL: string;
 
-  constructor(wsA13WSDL: string) {
-    this.wsA13WSDL = wsA13WSDL;
+  constructor(wsA5WSDL: string) {
+    this.wsA5WSDL = wsA5WSDL;
   }
 
   async getPersona(
@@ -13,7 +13,7 @@ export class GetPersona {
     sign: string,
     documento: string
   ): Promise<any> {
-    const soapClient = await soap.createClientAsync(this.wsA13WSDL);
+    const soapClient = await soap.createClientAsync(this.wsA5WSDL);
 
     const requestBody = {
       token: token,
@@ -24,7 +24,8 @@ export class GetPersona {
     try {
       const response = await soapClient.getPersonaAsync(requestBody);
       // console.log(response[0].personaReturn.persona);
-      return response[0].personaReturn.persona;
+      console.log(response[0].personaReturn);
+      return response[0].personaReturn;
     } catch (error) {
       if (error instanceof Error) {
         console.log(error);

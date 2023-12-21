@@ -1,18 +1,19 @@
-import { AfipAuth } from "../AfipAuthWSFE";
+import { AfipAuthWSA5 } from "../AfipAuthWSA5";
 import * as soap from "soap";
 import fs from "fs";
 import path from "path";
-import { GetIdPersonaListByDocumento } from "./getIdPersonaListByDocumento";
-import { GetPersona } from "./getPersona";
+import { GetIdPersonaListByDocumento } from "./getIdPersonaListByDocumento5";
+import { GetPersona } from "./getPersona5";
+
 export class Wsa5Service {
-  private afipAuth: AfipAuth;
+  private afipAuth: AfipAuthWSA5;
   private wsA5WSDL: string;
 
   // Instancias de los servicios
   private getIdPersonaService: GetIdPersonaListByDocumento;
   private getPersonaService: GetPersona;
 
-  constructor(afipAuth: AfipAuth) {
+  constructor(afipAuth: AfipAuthWSA5) {
     this.afipAuth = afipAuth;
     this.wsA5WSDL = path.resolve(
       __dirname,

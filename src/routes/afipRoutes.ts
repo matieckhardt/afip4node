@@ -4,8 +4,14 @@ import { AfipAuthWSA13 } from "../services/AfipAuthWSA13";
 import { AfipAuthWSA5 } from "../services/AfipAuthWSA5";
 import { WsfeService } from "../services";
 import { Wsa13Service } from "../services/wsa13";
-import { Wsa5Service } from "../services/wsa5";
+import { Wsa5Service } from "../services/WSA5";
 
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+
+const upload = multer();
+const routeCerts = path.resolve(__dirname, "certs"); // Adjust the path as needed
 const router = express.Router();
 
 const afipAuth = new AfipAuth(
@@ -27,7 +33,7 @@ const afipAuthWSA5 = new AfipAuthWSA5(
 
 const wsfeService = new WsfeService(afipAuth);
 const wsa13Service = new Wsa13Service(afipAuth);
-const wsa5Service = new Wsa5Service(afipAuth);
+const wsa5Service = new Wsa5Service(afipAuthWSA5);
 // Aquí van todas tus rutas relacionadas con AFIP
 // Por ejemplo:
 
@@ -402,6 +408,33 @@ router.post("/afip/create-invoice", async (req, res) => {
   }
 });
 
+router.post("/afip/save-cert", upload.any(), async (req, res) => {
+  const { cert, key } = req.body;
+
+  try {
+    // Define the paths for the certificate and key
+    const certificatesDir = path.join(__dirname, "../certs");
+    const certPath = path.join(certificatesDir, "cert");
+    const keyPath = path.join(certificatesDir, "key");
+
+    // Check if the certificates directory exists, create it if not
+    if (!fs.existsSync(certificatesDir)) {
+      fs.mkdirSync(certificatesDir, { recursive: true });
+    }
+
+    // Save the cert and key in the certificates folder
+    fs.writeFileSync(certPath, cert, "utf8");
+    fs.writeFileSync(keyPath, key, "utf8");
+
+    console.log(`Files saved: ${certPath}, ${keyPath}`);
+
+    res.send("Received and saved the cert and key");
+  } catch (error) {
+    console.error("Error saving files:", error);
+    res.status(500).send("Error saving the cert and key");
+  }
+});
+
 router.get("/afip/tiposPaises", async (req, res) => {
   try {
     const cuit = req.query.cuit as string;
@@ -508,7 +541,7 @@ router.post("/afip/caea-consultar", async (req, res) => {
   }
 });
 
-router.get("/afip/constancia", async (req, res) => {
+router.get("/afip/persona", async (req, res) => {
   try {
     const documento = req.query.documento as string;
     const cuit = req.query.cuit as string;
@@ -550,39 +583,57 @@ router.get("/afip/constancia", async (req, res) => {
   }
 });
 
-router.get("/afip/persona", async (req, res) => {
+router.get("/afip/constancia", async (req, res) => {
   try {
     const documento = req.query.documento as string;
-    const cuit = req.query.cuit as string;
+    const cuitRepresentante = req.query.cuit as string;
 
-    const { token, sign } = await afipAuthWSA5.getAuthToken(
-      cuit,
-      "ws_sr_padron_a5"
+    let cuitPersonas: string[]; // Array para almacenar uno o más CUITs
+
+    // Si el documento es un DNI (menos de 11 caracteres), buscar el CUIT correspondiente
+    if (documento.length < 11) {
+      const { token, sign } = await afipAuthWSA13.getAuthToken(
+        cuitRepresentante,
+        "ws_sr_padron_a13"
+      );
+      cuitPersonas = await wsa13Service.getDNI(
+        cuitRepresentante,
+        token,
+        sign,
+        documento
+      );
+
+      if (cuitPersonas.length === 0) {
+        return res
+          .status(404)
+          .json({ error: "CUIT no encontrado para el DNI proporcionado" });
+      }
+    } else {
+      // Si el documento ya es un CUIT
+      cuitPersonas = [documento];
+    }
+
+    // Obtener el token para el servicio de constancia de inscripción
+    const { token: tokenConstancia, sign: signConstancia } =
+      await afipAuthWSA5.getAuthToken(
+        cuitRepresentante,
+        "ws_sr_constancia_inscripcion"
+      );
+
+    // Consultar la constancia de inscripción para cada CUIT
+    const constanciaInfos = await Promise.all(
+      cuitPersonas.map(async (cuitPersona) => {
+        return await wsa5Service.getCUIT(
+          cuitRepresentante,
+          tokenConstancia,
+          signConstancia,
+          cuitPersona
+        );
+      })
     );
 
-    if (documento.length === 11) {
-      const cuitInfo = await wsa5Service.getCUIT(cuit, token, sign, documento);
-      res.json(cuitInfo);
-    } else {
-      const cuitList = await wsa5Service.getDNI(cuit, token, sign, documento);
-      if (cuitList.length === 1) {
-        const personaInfo = await wsa5Service.getCUIT(
-          cuit,
-          token,
-          sign,
-          cuitList[0]
-        );
-        res.json(personaInfo);
-      } else {
-        const allInfo = await Promise.all(
-          cuitList.map(
-            async (documento: string) =>
-              await wsa5Service.getCUIT(cuit, token, sign, documento)
-          )
-        );
-        res.json(allInfo);
-      }
-    }
+    console.log(constanciaInfos);
+    res.json(constanciaInfos);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ error: error.message });

@@ -19,7 +19,7 @@ class AfipAuthWSA5 {
     this.wsaaUrl = isProduction;
     (this.certificate = certificate),
       (this.privateKey = privateKey),
-      (this.wsaaUrl = "https://wsaa.afip.gov.ar/ws/services/LoginCms");
+      (this.wsaaUrl = process.env.WSAAURL || "default_value");
   }
 
   async getAuthToken(
