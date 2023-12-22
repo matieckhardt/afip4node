@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import * as xml2js from "xml2js";
 const isProduction = "production";
+require("dotenv").config();
 
 const certificate = fs.readFileSync(path.resolve("./src/certs/cert"), "utf8");
 const privateKey = fs.readFileSync(path.resolve("./src/certs/key"), "utf8");
@@ -19,7 +20,8 @@ class AfipAuthWSA13 {
     this.wsaaUrl = isProduction;
     (this.certificate = certificate),
       (this.privateKey = privateKey),
-      (this.wsaaUrl = process.env.WSAAURL || "default_value");
+      (this.wsaaUrl =
+        process.env.WSAAURL || "https://wsaa.afip.gov.ar/ws/services/LoginCms");
   }
 
   async getAuthToken(

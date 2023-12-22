@@ -1,0 +1,14 @@
+# Dependencies
+node_modules
+
+# Production files
+/.cache
+/build
+/public/build
+/src/certs
+/dist
+
+
+#garbage
+.DS_Store
+
