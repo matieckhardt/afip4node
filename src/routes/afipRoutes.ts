@@ -32,7 +32,7 @@ const afipAuthWSA5 = new AfipAuthWSA5(
 );
 
 const wsfeService = new WsfeService(afipAuth);
-const wsa13Service = new Wsa13Service(afipAuth);
+const wsa13Service = new Wsa13Service(afipAuthWSA13);
 const wsa5Service = new Wsa5Service(afipAuthWSA5);
 // Aquí van todas tus rutas relacionadas con AFIP
 // Por ejemplo:
@@ -99,7 +99,6 @@ router.get("/afip/sales-point", async (req, res) => {
     const cuit = process.env.CUIT;
     const service = process.env.SERVICE;
 
-    console.log(cuit, service);
     // Asegúrate de que todos los parámetros son strings
     if (typeof cuit !== "string" || typeof service !== "string") {
       return res.status(400).json({ error: "Parámetros inválidos" });
@@ -632,7 +631,6 @@ router.get("/afip/constancia", async (req, res) => {
       })
     );
 
-    console.log(constanciaInfos);
     res.json(constanciaInfos);
   } catch (error) {
     if (error instanceof Error) {

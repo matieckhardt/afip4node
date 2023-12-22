@@ -18,5 +18,5 @@ app.use(morgan("dev")); // 'dev' format for development logging
 app.use(afipRoutes);
 
 app.listen(port, () => {
-  console.log(`Middleware corriendo en http://localhost:${port}`);
+  console.log(`afip4node esta corriendo en http://localhost:${port}`);
 });
