@@ -4,7 +4,7 @@ import { AfipAuthWSA13 } from "../services/auth/AfipAuthWSA13";
 import { AfipAuthWSA5 } from "../services/auth/AfipAuthWSA5";
 import { WsfeService } from "../services";
 import { Wsa13Service } from "../services/wsa13";
-import { Wsa5Service } from "../services/WSA5";
+import { Wsa5Service } from "../services/wsa5";
 
 import multer from "multer";
 import fs from "fs";
