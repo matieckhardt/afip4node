@@ -9,14 +9,14 @@ require("dotenv").config();
 const certificate = fs.readFileSync(path.resolve("./src/certs/cert"), "utf8");
 const privateKey = fs.readFileSync(path.resolve("./src/certs/key"), "utf8");
 
-class AfipAuthWSA5 {
+class AfipAuth {
   private wsaaWSDL: string;
   private wsaaUrl: string;
   private certificate: string;
   private privateKey: string;
 
   constructor(privateKeyPath: string, certPath: string, production: boolean) {
-    this.wsaaWSDL = path.resolve(__dirname, "../certs/wsaa.wsdl");
+    this.wsaaWSDL = path.resolve(__dirname, "../../certs/wsaa.wsdl");
     this.wsaaUrl = isProduction;
     (this.certificate = certificate),
       (this.privateKey = privateKey),
@@ -28,8 +28,8 @@ class AfipAuthWSA5 {
     cuit: string,
     service: string
   ): Promise<{ token: string; sign: string }> {
-    const taFileName = `TA-WSA5-${cuit}.json`;
-    const taPath = path.resolve(__dirname, `../certs/${taFileName}`);
+    const taFileName = `TA-WSFE-${cuit}.json`;
+    const taPath = path.resolve(__dirname, `../../certs/${taFileName}`);
 
     // Primero intenta leer un TA existente
     const existingTA = this.readTA(taPath);
@@ -169,4 +169,4 @@ class AfipAuthWSA5 {
   }
 }
 
-export { AfipAuthWSA5 };
+export { AfipAuth };

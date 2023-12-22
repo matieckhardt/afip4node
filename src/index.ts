@@ -1,5 +1,5 @@
 import express from "express";
-import { AfipAuth } from "./services/AfipAuthWSFE";
+import { AfipAuth } from "./services/auth/AfipAuthWSFE";
 import { WsfeService } from "./services";
 import bodyParser from "body-parser";
 import afipRoutes from "./routes/afipRoutes";

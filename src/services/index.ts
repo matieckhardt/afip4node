@@ -1,4 +1,4 @@
-import { AfipAuth } from "./AfipAuthWSFE";
+import { AfipAuth } from "./auth/AfipAuthWSFE";
 import * as soap from "soap";
 import fs from "fs";
 import path from "path";

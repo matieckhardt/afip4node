@@ -1,7 +1,7 @@
 import express from "express";
-import { AfipAuth } from "../services/AfipAuthWSFE";
-import { AfipAuthWSA13 } from "../services/AfipAuthWSA13";
-import { AfipAuthWSA5 } from "../services/AfipAuthWSA5";
+import { AfipAuth } from "../services/auth/AfipAuthWSFE";
+import { AfipAuthWSA13 } from "../services/auth/AfipAuthWSA13";
+import { AfipAuthWSA5 } from "../services/auth/AfipAuthWSA5";
 import { WsfeService } from "../services";
 import { Wsa13Service } from "../services/wsa13";
 import { Wsa5Service } from "../services/WSA5";
