@@ -24,7 +24,6 @@ export class GetPersona {
     try {
       const response = await soapClient.getPersonaAsync(requestBody);
       // console.log(response[0].personaReturn.persona);
-      console.log(response[0].personaReturn);
       return response[0].personaReturn;
     } catch (error) {
       if (error instanceof Error) {

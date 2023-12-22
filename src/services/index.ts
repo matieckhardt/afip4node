@@ -400,11 +400,8 @@ export class WsfeService {
       return response[0].FECAESolicitarResult;
     } catch (error) {
       if (error instanceof Error) {
-        console.log("caca", error);
         throw new Error(`Error al crear la factura: ${error.message}`);
       } else {
-        console.log("caca2");
-
         throw new Error(`Error al crear la factura`);
       }
     }
