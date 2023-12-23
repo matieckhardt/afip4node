@@ -620,7 +620,7 @@ router.get("/afip/constancia", async (req, res) => {
       );
 
     // Consultar la constancia de inscripción para cada CUIT
-    const constanciaInfos = await Promise.all(
+    const afipData = await Promise.all(
       cuitPersonas.map(async (cuitPersona) => {
         return await wsa5Service.getCUIT(
           cuitRepresentante,
@@ -631,7 +631,53 @@ router.get("/afip/constancia", async (req, res) => {
       })
     );
 
-    res.json(constanciaInfos);
+    const constancias = afipData.map((data) => {
+      let categoria = "IVA Exento";
+      if (data.categoriaAutonomo) {
+        categoria = "IVA Responsable Inscripto";
+      } else if (data.datosMonotributo) {
+        categoria = "IVA Responsable Monotributo";
+      }
+      const setTaxCategory = (impuestos: Array<any>) => {
+        if (!impuestos) {
+          return "Consumidor Final";
+        }
+
+        const codigosBuscados = [30, 32];
+        const categoriaEncontrada = impuestos.find((impuesto) =>
+          codigosBuscados.includes(impuesto.idImpuesto)
+        );
+
+        return categoriaEncontrada
+          ? categoriaEncontrada.descripcionImpuesto === "IVA"
+            ? "IVA Responsable Inscripto"
+            : categoriaEncontrada.descripcionImpuesto === "IVA EXENTO"
+            ? "IVA Exento"
+            : "Consumidor Final"
+          : "Consumidor Final"; // Add a default value here
+      };
+
+      return {
+        nombre: data.datosGenerales.nombre,
+        apellido: data.datosGenerales.apellido,
+        direccion: data.datosGenerales.domicilioFiscal.direccion,
+        localidad: data.datosGenerales.domicilioFiscal.localidad,
+        codPostal: data.datosGenerales.domicilioFiscal.codPostal,
+        provincia: data.datosGenerales.domicilioFiscal.descripcionProvincia,
+        tipoClave: data.datosGenerales.tipoClave,
+        tipoPersona: data.datosGenerales.tipoPersona,
+        idPersona: data.datosGenerales.idPersona,
+        razonSocial: data.datosGenerales?.razonSocial,
+        impuesto: data.datosMonotributo
+          ? "IVA Responsable Monotributo"
+          : setTaxCategory(data.datosRegimenGeneral?.impuesto),
+      };
+    });
+
+    console.log(afipData[0]);
+
+    console.log(constancias);
+    res.json(constancias[0]);
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ error: error.message });
