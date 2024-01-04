@@ -15,8 +15,8 @@ class AfipAuthWSA5 {
   private certificate: string;
   private privateKey: string;
 
-  constructor(privateKeyPath: string, certPath: string, production: boolean) {
-    this.wsaaWSDL = path.resolve(__dirname, "../../certs/wsaa.wsdl");
+  constructor() {
+    this.wsaaWSDL = path.resolve(__dirname, "../../wsdl/wsaa.wsdl");
     this.wsaaUrl = isProduction;
     (this.certificate = certificate),
       (this.privateKey = privateKey),

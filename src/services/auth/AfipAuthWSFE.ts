@@ -15,14 +15,17 @@ const privateKey =
     ? fs.readFileSync(path.resolve("./src/certs/key"), "utf8")
     : fs.readFileSync(path.resolve("./src/certs/key-homo"), "utf8");
 
+console.log(certificate);
+console.log(privateKey);
+
 class AfipAuth {
   private wsaaWSDL: string;
   private wsaaUrl: string;
   private certificate: string;
   private privateKey: string;
 
-  constructor(privateKeyPath: string, certPath: string, production: boolean) {
-    this.wsaaWSDL = path.resolve(__dirname, "../../certs/wsaa.wsdl");
+  constructor() {
+    this.wsaaWSDL = path.resolve(__dirname, "../../wsdl/wsaa.wsdl");
     (this.certificate = certificate),
       (this.privateKey = privateKey),
       (this.wsaaUrl =

@@ -11,25 +11,11 @@ import fs from "fs";
 import path from "path";
 
 const upload = multer();
-const routeCerts = path.resolve(__dirname, "certs"); // Adjust the path as needed
 const router = express.Router();
 
-const afipAuth = new AfipAuth(
-  "./src/certs/privateKey.pem",
-  "./src/certs/cert.pem",
-  false
-);
-
-const afipAuthWSA13 = new AfipAuthWSA13(
-  "./src/certs/privateKey.pem",
-  "./src/certs/cert.pem",
-  false
-);
-const afipAuthWSA5 = new AfipAuthWSA5(
-  "./src/certs/privateKey.pem",
-  "./src/certs/cert.pem",
-  false
-);
+const afipAuth = new AfipAuth();
+const afipAuthWSA13 = new AfipAuthWSA13();
+const afipAuthWSA5 = new AfipAuthWSA5();
 
 const wsfeService = new WsfeService(afipAuth);
 const wsa13Service = new Wsa13Service(afipAuthWSA13);
