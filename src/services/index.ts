@@ -26,7 +26,6 @@ require("dotenv").config();
 // Asegúrate de que la ruta sea correcta
 const isProduction = process.env.PRODUCTION;
 
-console.log("wsfe production mode:", process.env.PRODUCTION);
 export class WsfeService {
   private afipAuth: AfipAuth;
   private wsfeWSDL: string;
@@ -55,10 +54,8 @@ export class WsfeService {
 
   constructor(afipAuth: AfipAuth) {
     this.afipAuth = afipAuth;
-    this.wsfeWSDL =
-      isProduction === "true"
-        ? path.resolve(__dirname, "../wsdl/wsfe-production.wsdl")
-        : path.resolve(__dirname, "../wsdl/wsfe-homo.wsdl");
+    this.wsfeWSDL = path.resolve(__dirname, "../wsdl/wsfe-production.wsdl");
+
     this.caeaConsultarService = new FECAEAConsultarService(this.wsfeWSDL);
     this.dummyService = new FEDummyService(this.wsfeWSDL);
     this.ultimoAutorizadoService = new FECompUltimoAutorizado(this.wsfeWSDL);

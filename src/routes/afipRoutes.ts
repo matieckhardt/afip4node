@@ -82,8 +82,8 @@ router.get("/afip/last-voucher", async (req, res) => {
 
 router.get("/afip/sales-point", async (req, res) => {
   try {
-    const cuit = process.env.CUIT;
-    const service = process.env.SERVICE;
+    const cuit = req.query.cuit;
+    const service = req.query.service;
 
     // Asegúrate de que todos los parámetros son strings
     if (typeof cuit !== "string" || typeof service !== "string") {
@@ -320,9 +320,8 @@ router.get("/afip/tiposOpcionales", async (req, res) => {
 
 router.get("/afip/server-status", async (req, res) => {
   try {
-    const cuit = req.query.cuit as string;
-    const service = "wsfe"; // O el servicio correspondiente
-
+    const cuit = process.env.CUIT as string;
+    const service = process.env.SERVICE as string;
     const { token, sign } = await afipAuth.getAuthToken(cuit, service);
     if (!token || !sign) {
       return res

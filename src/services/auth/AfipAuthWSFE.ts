@@ -6,17 +6,8 @@ import * as xml2js from "xml2js";
 require("dotenv").config();
 const isProduction = process.env.PRODUCTION;
 
-const certificate =
-  isProduction === "true"
-    ? fs.readFileSync(path.resolve("./src/certs/cert"), "utf8")
-    : fs.readFileSync(path.resolve("./src/certs/cert-homo"), "utf8");
-const privateKey =
-  isProduction === "true"
-    ? fs.readFileSync(path.resolve("./src/certs/key"), "utf8")
-    : fs.readFileSync(path.resolve("./src/certs/key-homo"), "utf8");
-
-console.log(certificate);
-console.log(privateKey);
+const certificate = fs.readFileSync(path.resolve("./src/certs/cert"), "utf8");
+const privateKey = fs.readFileSync(path.resolve("./src/certs/key"), "utf8");
 
 class AfipAuth {
   private wsaaWSDL: string;
