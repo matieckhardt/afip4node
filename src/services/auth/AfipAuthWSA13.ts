@@ -19,10 +19,7 @@ class AfipAuthWSA13 {
     this.wsaaWSDL = path.resolve(__dirname, "../../certs/wsaa.wsdl");
     (this.certificate = certificate),
       (this.privateKey = privateKey),
-      (this.wsaaUrl =
-        isProduction === "true"
-          ? "https://wsaa.afip.gov.ar/ws/services/LoginCms"
-          : "https://wsaahomo.afip.gov.ar/ws/services/LoginCms");
+      (this.wsaaUrl = "https://wsaa.afip.gov.ar/ws/services/LoginCms");
   }
 
   async getAuthToken(
