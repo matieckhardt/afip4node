@@ -17,7 +17,7 @@ export class Wsa5Service {
     this.afipAuth = afipAuth;
     this.wsA5WSDL = path.resolve(
       __dirname,
-      "../../wsdl/ws_sr_padron_a5-production.wsdl"
+      "../../wsdl/ws_sr_padron_a5.wsdl"
     );
 
     this.getIdPersonaService = new GetIdPersonaListByDocumento(this.wsA5WSDL);

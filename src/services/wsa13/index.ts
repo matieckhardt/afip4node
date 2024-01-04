@@ -16,7 +16,7 @@ export class Wsa13Service {
     this.afipAuth = afipAuth;
     this.wsA13WSDL = path.resolve(
       __dirname,
-      "../../wsdl/ws_sr_padron_a13-production.wsdl"
+      "../../wsdl/ws_sr_padron_a13.wsdl"
     );
 
     this.getIdPersonaService = new GetIdPersonaListByDocumento(this.wsA13WSDL);

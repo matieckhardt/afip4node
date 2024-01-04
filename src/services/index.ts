@@ -51,7 +51,7 @@ export class WsfeService {
 
   constructor(afipAuth: AfipAuth) {
     this.afipAuth = afipAuth;
-    this.wsfeWSDL = path.resolve(__dirname, "../wsdl/wsfe-production.wsdl");
+    this.wsfeWSDL = path.resolve(__dirname, "../wsdl/wsfe.wsdl");
     this.caeaConsultarService = new FECAEAConsultarService(this.wsfeWSDL);
 
     this.dummyService = new FEDummyService(this.wsfeWSDL);
