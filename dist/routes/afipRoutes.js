@@ -507,19 +507,19 @@ router.get("/afip/constancia", (req, res) => __awaiter(void 0, void 0, void 0, f
                     : "Consumidor Final"; // Add a default value here
             };
             return {
-                nombre: data.datosGenerales.nombre,
-                apellido: data.datosGenerales.apellido,
-                direccion: data.datosGenerales.domicilioFiscal.direccion,
-                localidad: data.datosGenerales.domicilioFiscal.localidad,
-                codPostal: data.datosGenerales.domicilioFiscal.codPostal,
-                provincia: data.datosGenerales.domicilioFiscal.descripcionProvincia,
-                tipoClave: data.datosGenerales.tipoClave,
-                tipoPersona: data.datosGenerales.tipoPersona,
-                idPersona: data.datosGenerales.idPersona,
-                razonSocial: (_a = data.datosGenerales) === null || _a === void 0 ? void 0 : _a.razonSocial,
+                nombre: data.datosGenerales.nombre || "",
+                apellido: data.datosGenerales.apellido || "",
+                direccion: data.datosGenerales.domicilioFiscal.direccion || "",
+                localidad: data.datosGenerales.domicilioFiscal.localidad || "",
+                codPostal: data.datosGenerales.domicilioFiscal.codPostal || "",
+                provincia: data.datosGenerales.domicilioFiscal.descripcionProvincia || "",
+                tipoClave: data.datosGenerales.tipoClave || "",
+                tipoPersona: data.datosGenerales.tipoPersona || "",
+                idPersona: data.datosGenerales.idPersona || "",
+                razonSocial: ((_a = data.datosGenerales) === null || _a === void 0 ? void 0 : _a.razonSocial) || "",
                 impuesto: data.datosMonotributo
                     ? "IVA Responsable Monotributo"
-                    : setTaxCategory((_b = data.datosRegimenGeneral) === null || _b === void 0 ? void 0 : _b.impuesto),
+                    : setTaxCategory((_b = data.datosRegimenGeneral) === null || _b === void 0 ? void 0 : _b.impuesto) || "",
             };
         });
         console.log(afipData[0]);
