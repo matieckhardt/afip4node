@@ -3,8 +3,8 @@ import * as soap from "soap";
 import fs from "fs";
 import path from "path";
 import * as xml2js from "xml2js";
-const isProduction = "production";
 require("dotenv").config();
+const isProduction = process.env.PRODUCTION;
 
 const certificate = fs.readFileSync(path.resolve("./src/certs/cert"), "utf8");
 const privateKey = fs.readFileSync(path.resolve("./src/certs/key"), "utf8");
@@ -17,11 +17,12 @@ class AfipAuthWSA13 {
 
   constructor(privateKeyPath: string, certPath: string, production: boolean) {
     this.wsaaWSDL = path.resolve(__dirname, "../../certs/wsaa.wsdl");
-    this.wsaaUrl = isProduction;
     (this.certificate = certificate),
       (this.privateKey = privateKey),
       (this.wsaaUrl =
-        process.env.WSAAURL || "https://wsaahomo.afip.gov.ar/ws/services/LoginCms");
+        isProduction === "true"
+          ? "https://wsaa.afip.gov.ar/ws/services/LoginCms"
+          : "https://wsaahomo.afip.gov.ar/ws/services/LoginCms");
   }
 
   async getAuthToken(

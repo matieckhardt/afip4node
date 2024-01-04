@@ -22,7 +22,9 @@ import { FECAESolicitar } from "./wsfe/FECAESolicitar";
 import { FECompConsultar } from "./wsfe/FECompConsultar";
 import { FECompTotXRequest } from "./wsfe/FECompTotXRequest";
 import { FECAEAConsultarService } from "./wsfe/FECAEAConsultar"; // Asegúrate de que la ruta sea correcta
+const isProduction = process.env.PRODUCTION;
 
+console.log("wsfe production mode:", process.env.PRODUCTION);
 export class WsfeService {
   private afipAuth: AfipAuth;
   private wsfeWSDL: string;
@@ -51,9 +53,11 @@ export class WsfeService {
 
   constructor(afipAuth: AfipAuth) {
     this.afipAuth = afipAuth;
-    this.wsfeWSDL = path.resolve(__dirname, "../wsdl/wsfe.wsdl");
+    this.wsfeWSDL =
+      isProduction === "true"
+        ? path.resolve(__dirname, "../wsdl/wsfe-production.wsdl")
+        : path.resolve(__dirname, "../wsdl/wsfe.wsdl");
     this.caeaConsultarService = new FECAEAConsultarService(this.wsfeWSDL);
-
     this.dummyService = new FEDummyService(this.wsfeWSDL);
     this.ultimoAutorizadoService = new FECompUltimoAutorizado(this.wsfeWSDL);
     this.ptosVentaService = new FEParamGetPtosVenta(this.wsfeWSDL);

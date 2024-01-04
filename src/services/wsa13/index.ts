@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { GetIdPersonaListByDocumento } from "./getIdPersonaListByDocumento";
 import { GetPersona } from "./getPersona";
+
 export class Wsa13Service {
   private afipAuth: AfipAuthWSA13;
   private wsA13WSDL: string;
@@ -16,7 +17,7 @@ export class Wsa13Service {
     this.afipAuth = afipAuth;
     this.wsA13WSDL = path.resolve(
       __dirname,
-      "../../wsdl/ws_sr_padron_a13.wsdl"
+      "../../wsdl/ws_sr_padron_a13-production.wsdl"
     );
 
     this.getIdPersonaService = new GetIdPersonaListByDocumento(this.wsA13WSDL);

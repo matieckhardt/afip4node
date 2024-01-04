@@ -3,11 +3,17 @@ import * as soap from "soap";
 import fs from "fs";
 import path from "path";
 import * as xml2js from "xml2js";
-const isProduction = "production";
 require("dotenv").config();
+const isProduction = process.env.PRODUCTION;
 
-const certificate = fs.readFileSync(path.resolve("./src/certs/cert"), "utf8");
-const privateKey = fs.readFileSync(path.resolve("./src/certs/key"), "utf8");
+const certificate =
+  isProduction === "true"
+    ? fs.readFileSync(path.resolve("./src/certs/cert"), "utf8")
+    : fs.readFileSync(path.resolve("./src/certs/cert-homo"), "utf8");
+const privateKey =
+  isProduction === "true"
+    ? fs.readFileSync(path.resolve("./src/certs/key"), "utf8")
+    : fs.readFileSync(path.resolve("./src/certs/key-homo"), "utf8");
 
 class AfipAuth {
   private wsaaWSDL: string;
@@ -17,11 +23,12 @@ class AfipAuth {
 
   constructor(privateKeyPath: string, certPath: string, production: boolean) {
     this.wsaaWSDL = path.resolve(__dirname, "../../certs/wsaa.wsdl");
-    this.wsaaUrl = isProduction;
     (this.certificate = certificate),
       (this.privateKey = privateKey),
       (this.wsaaUrl =
-        process.env.WSAAURL || "https://wsaahomo.afip.gov.ar/ws/services/LoginCms");
+        isProduction === "true"
+          ? "https://wsaa.afip.gov.ar/ws/services/LoginCms"
+          : "https://wsaahomo.afip.gov.ar/ws/services/LoginCms");
   }
 
   async getAuthToken(
