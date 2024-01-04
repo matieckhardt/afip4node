@@ -656,18 +656,19 @@ router.get("/afip/constancia", async (req, res) => {
             : "Consumidor Final"
           : "Consumidor Final"; // Add a default value here
       };
-
+      console.log(data);
       return {
-        nombre: data.datosGenerales.nombre,
-        apellido: data.datosGenerales.apellido,
-        direccion: data.datosGenerales.domicilioFiscal.direccion,
-        localidad: data.datosGenerales.domicilioFiscal.localidad,
-        codPostal: data.datosGenerales.domicilioFiscal.codPostal,
-        provincia: data.datosGenerales.domicilioFiscal.descripcionProvincia,
-        tipoClave: data.datosGenerales.tipoClave,
-        tipoPersona: data.datosGenerales.tipoPersona,
-        idPersona: data.datosGenerales.idPersona,
-        razonSocial: data.datosGenerales?.razonSocial,
+        nombre: data.datosGenerales.nombre || "",
+        apellido: data.datosGenerales.apellido || "",
+        direccion: data.datosGenerales.domicilioFiscal.direccion || "",
+        localidad: data.datosGenerales.domicilioFiscal.localidad || "",
+        codPostal: data.datosGenerales.domicilioFiscal.codPostal || "",
+        provincia:
+          data.datosGenerales.domicilioFiscal.descripcionProvincia || "",
+        tipoClave: data.datosGenerales.tipoClave || "",
+        tipoPersona: data.datosGenerales.tipoPersona || "",
+        idPersona: data.datosGenerales.idPersona || "",
+        razonSocial: data.datosGenerales?.razonSocial || "",
         impuesto: data.datosMonotributo
           ? "IVA Responsable Monotributo"
           : setTaxCategory(data.datosRegimenGeneral?.impuesto),
