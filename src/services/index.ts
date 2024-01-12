@@ -383,6 +383,7 @@ export class WsfeService {
           CantReg: 1,
           PtoVta: invoiceData.PtoVta,
           CbteTipo: invoiceData.CbteTipo,
+          CbteAsoc: invoiceData.CbtesAsoc,
         },
         FeDetReq: {
           FECAEDetRequest: [dataToAuth],
