@@ -358,12 +358,7 @@ export class WsfeService {
       MonCotiz: 1,
       MonId: "PES",
       PtoVta: invoiceData.PtoVta.toString(),
-      PeriodoAsoc: {
-        FchDesde: invoiceData.PeriodoAsoc.CbteFch,
-        FchHasta: invoiceData.PeriodoAsoc.CbteFch,
-      },
       CbtesAsoc: invoiceData.CbtesAsoc,
-
       FchServDesde:
         invoiceData.Concepto === 2 || invoiceData.Concepto === 3
           ? invoiceData.CbteFch
