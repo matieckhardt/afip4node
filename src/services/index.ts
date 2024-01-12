@@ -378,7 +378,6 @@ export class WsfeService {
     //  delete formattedInvoiceData.CantReg;
     //  delete formattedInvoiceData.PtoVta;
     //  delete formattedInvoiceData.CbteTipo;
-    console.log("antes dformattedInvoiceData", dataToAuth);
     const requestBody = {
       Auth: { Token: token, Sign: sign, Cuit: cuit },
       FeCAEReq: {
@@ -386,9 +385,6 @@ export class WsfeService {
           CantReg: 1,
           PtoVta: invoiceData.PtoVta,
           CbteTipo: invoiceData.CbteTipo,
-          CbtesAsoc: invoiceData.CbtesAsoc
-            ? { CbtesAsoc: invoiceData.CbtesAsoc }
-            : undefined,
         },
         FeDetReq: {
           FECAEDetRequest: [dataToAuth],
@@ -396,6 +392,8 @@ export class WsfeService {
       },
     };
     try {
+      console.log("Request Body for SOAP", requestBody);
+
       const response = await soapClient.FECAESolicitarAsync(requestBody);
       console.log(
         "RESPONSE COMPLETA de creación de factura:",
