@@ -389,9 +389,6 @@ export class WsfeService {
           CantReg: 1,
           PtoVta: invoiceData.PtoVta,
           CbteTipo: invoiceData.CbteTipo,
-          CbtesAsoc: invoiceData.CbtesAsoc
-            ? [{ CbtesAsoc: invoiceData.CbtesAsoc }]
-            : undefined,
         },
         FeDetReq: {
           FECAEDetRequest: [dataToAuth],
@@ -399,7 +396,7 @@ export class WsfeService {
       },
     };
     try {
-      console.log("Request Body for SOAP", requestBody);
+      console.log("dataToAuth for SOAP", dataToAuth);
 
       const response = await soapClient.FECAESolicitarAsync(requestBody);
       console.log(
