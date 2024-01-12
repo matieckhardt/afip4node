@@ -329,7 +329,7 @@ export class WsfeService {
         ? { Tributo: invoiceData.Tributos }
         : undefined,
       CbtesAsoc: invoiceData.CbtesAsoc
-        ? { CbteAsoc: invoiceData.CbtesAsoc }
+        ? { CbtesAsoc: invoiceData.CbtesAsoc }
         : undefined,
       Compradores: invoiceData.Compradores
         ? { Comprador: invoiceData.Compradores }
