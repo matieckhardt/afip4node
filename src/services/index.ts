@@ -362,9 +362,8 @@ export class WsfeService {
         FchDesde: invoiceData.PeriodoAsoc.CbteFch,
         FchHasta: invoiceData.PeriodoAsoc.CbteFch,
       },
-      CbtesAsoc: invoiceData.CbtesAsoc
-        ? [{ CbtesAsoc: invoiceData.CbtesAsoc }]
-        : undefined,
+      CbtesAsoc: invoiceData.CbtesAsoc,
+
       FchServDesde:
         invoiceData.Concepto === 2 || invoiceData.Concepto === 3
           ? invoiceData.CbteFch
