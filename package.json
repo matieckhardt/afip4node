@@ -4,7 +4,7 @@
   "description": "Modulo de comunicacion con los WS de AFIP.",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -R src/certs dist/ && cp -R src/wsdl dist/",
     "start": "node dist/index.js",
     "dev": "nodemon"
   },
