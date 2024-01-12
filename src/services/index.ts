@@ -386,6 +386,9 @@ export class WsfeService {
           CantReg: 1,
           PtoVta: invoiceData.PtoVta,
           CbteTipo: invoiceData.CbteTipo,
+          CbtesAsoc: invoiceData.CbtesAsoc
+            ? { CbtesAsoc: invoiceData.CbtesAsoc }
+            : undefined,
         },
         FeDetReq: {
           FECAEDetRequest: [dataToAuth],
