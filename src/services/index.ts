@@ -358,7 +358,7 @@ export class WsfeService {
       MonCotiz: 1,
       MonId: "PES",
       PtoVta: invoiceData.PtoVta.toString(),
-      CbtesAsoc: [invoiceData.CbteAsoc],
+      CbtesAsoc: [{ CbteAsoc: invoiceData.CbteAsoc }],
       FchServDesde:
         invoiceData.Concepto === 2 || invoiceData.Concepto === 3
           ? invoiceData.CbteFch
@@ -383,7 +383,6 @@ export class WsfeService {
           CantReg: 1,
           PtoVta: invoiceData.PtoVta,
           CbteTipo: invoiceData.CbteTipo,
-          CbteAsoc: invoiceData.CbtesAsoc,
         },
         FeDetReq: {
           FECAEDetRequest: [dataToAuth],
