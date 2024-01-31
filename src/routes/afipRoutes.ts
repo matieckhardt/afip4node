@@ -407,6 +407,58 @@ router.post("/afip/create-invoice", async (req, res) => {
   }
 });
 
+router.post("/afip/create-ticket", async (req, res) => {
+  try {
+    const cuit = req.query.cuit; // Debes obtener el CUIT de alguna manera
+
+    const service = "wsfe"; // O el servicio correspondiente
+    const salesPoint = req.body.PtoVta;
+    const invoiceType = req.body.CbteTipo;
+    if (typeof cuit !== "string" || typeof service !== "string") {
+      return res.status(400).json({
+        error: "Invalid parameters: cuit and service must be strings",
+      });
+    }
+    const { token, sign } = await afipAuth.getAuthToken(cuit, service);
+    if (!token || !sign) {
+      return res
+        .status(500)
+        .json({ error: "No se pudo obtener el token o la firma" });
+    }
+
+    const FECompUltimoAutorizado = await wsfeService.getLastVoucher(
+      token,
+      sign,
+      cuit,
+      salesPoint,
+      invoiceType,
+      service
+    );
+    console.log("ultimo autorizado create", FECompUltimoAutorizado.CbteNro);
+
+    const invoiceData = req.body;
+    invoiceData.CbteDesde = FECompUltimoAutorizado.CbteNro + 1;
+    invoiceData.CbteHasta = FECompUltimoAutorizado.CbteNro + 1;
+
+    console.log("invoice Data", invoiceData);
+    const invoiceResponse = await wsfeService.createInvoice(
+      cuit,
+      token,
+      sign,
+      invoiceData
+    );
+    res.json({invoiceResponse,invoiceData});
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res
+        .status(500)
+        .json({ error: "Se produjo un error desconocido creando la factura" });
+    }
+  }
+});
+
 router.post("/afip/save-cert", upload.any(), async (req, res) => {
   const { cert, key } = req.body;
 
