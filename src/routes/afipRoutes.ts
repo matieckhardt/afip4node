@@ -660,6 +660,22 @@ router.get("/afip/persona", async (req, res) => {
           cuitList[0]
         );
 
+        const constancia: Constancia = {
+          nombre: personaInfo.nombre || "",
+          apellido: personaInfo.apellido || "",
+          direccion: personaInfo.domicilio[0]?.direccion || "",
+          localidad: personaInfo.domicilio[0]?.localidad || "",
+          codPostal: personaInfo.domicilio[0]?.codigoPostal || "",
+          provincia: personaInfo.domicilio[0]?.descripcionProvincia || "",
+          tipoClave: personaInfo.tipoClave || "",
+          tipoPersona: personaInfo.tipoPersona || "",
+          idPersona: personaInfo.idPersona.toString() || "",
+          razonSocial: `${personaInfo.apellido}, ${personaInfo.nombre}` || "",
+          impuesto: "CONSUMIDOR FINAL",
+        };
+
+        res.json(constancia);
+      } else if (cuitList.length > 1) {
         const allInfoArray: AllInfo[] = await Promise.all(
           cuitList.map(
             async (documento: string) =>
@@ -689,6 +705,10 @@ router.get("/afip/persona", async (req, res) => {
         const constancia: Constancia = aggregateConstancia(allInfoArray);
 
         res.json(constancia);
+      } else {
+        res.status(404).json({
+          error: "No se encontró información para el documento proporcionado.",
+        });
       }
     }
   } catch (error) {
