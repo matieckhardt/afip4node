@@ -639,12 +639,12 @@ router.post("/afip/caea-consultar", async (req, res) => {
 
 const aggregateConstancia = (infoArray: AllInfo[]): Constancia[] => {
   return infoArray.map((info: AllInfo) => ({
-    nombre: info.nombre || "",
-    apellido: info.apellido || "",
-    direccion: info.domicilio[0]?.direccion || "",
-    localidad: info.domicilio[0]?.localidad || "",
-    codPostal: info.domicilio[0]?.codigoPostal || "",
-    provincia: info.domicilio[0]?.descripcionProvincia || "",
+    nombre: info.nombre || "sin nombre",
+    apellido: info.apellido || "sin apellido",
+    direccion: info.domicilio[0]?.direccion || "sin direccion",
+    localidad: info.domicilio[0]?.localidad || "sin localidad",
+    codPostal: info.domicilio[0]?.codigoPostal || "sin cp",
+    provincia: info.domicilio[0]?.descripcionProvincia || "sin provincia",
     tipoClave: info.tipoClave || "",
     tipoPersona: info.tipoPersona || "",
     idPersona: info.idPersona.toString() || "",
@@ -677,16 +677,18 @@ router.get("/afip/persona", async (req, res) => {
         );
 
         const constancia: Constancia = {
-          nombre: personaInfo.nombre || "",
-          apellido: personaInfo.apellido || "",
-          direccion: personaInfo.domicilio[0]?.direccion || "",
-          localidad: personaInfo.domicilio[0]?.localidad || "",
+          nombre: personaInfo.nombre || personaInfo.apellido || "Sin Nombre",
+          apellido: personaInfo.apellido || "Sin Apellido",
+          direccion: personaInfo.domicilio[0]?.direccion || "Sin Direccion",
+          localidad: personaInfo.domicilio[0]?.localidad || "Sin Localidad",
           codPostal: personaInfo.domicilio[0]?.codigoPostal || "",
-          provincia: personaInfo.domicilio[0]?.descripcionProvincia || "",
-          tipoClave: personaInfo.tipoClave || "",
-          tipoPersona: personaInfo.tipoPersona || "",
-          idPersona: personaInfo.idPersona.toString() || "",
-          razonSocial: `${personaInfo.apellido}, ${personaInfo.nombre}` || "",
+          provincia:
+            personaInfo.domicilio[0]?.descripcionProvincia || "Sin Provincia",
+          tipoClave: personaInfo.tipoClave || "Sin CUIT",
+          tipoPersona: personaInfo.tipoPersona || "Sin TIPO",
+          idPersona: personaInfo.idPersona.toString() || "SIN CUIT",
+          razonSocial:
+            `${personaInfo.apellido}, ${personaInfo.nombre}` || "Sin RS",
           impuesto: "Consumidor Final",
         };
 
