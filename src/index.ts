@@ -11,7 +11,7 @@ const port = process.env.PORT || 4000; // Fallback to 3000 if PORT is not define
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 app.use(morgan("dev")); // 'dev' format for development logging
 

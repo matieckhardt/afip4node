@@ -37,6 +37,51 @@ const wsa5Service = new Wsa5Service(afipAuthWSA5);
 // Aquí van todas tus rutas relacionadas con AFIP
 // Por ejemplo:
 
+interface Domicilio {
+  calle: string;
+  codigoPostal: string;
+  descripcionProvincia: string;
+  direccion: string;
+  estadoDomicilio: string;
+  idProvincia: number;
+  numero: number;
+  oficinaDptoLocal: string;
+  piso: string;
+  tipoDomicilio: string;
+  localidad?: string; // Assuming localidad might not always be present
+}
+
+interface AllInfo {
+  apellido: string;
+  descripcionActividadPrincipal: string;
+  domicilio: Domicilio[];
+  estadoClave: string;
+  fechaNacimiento: string;
+  idActividadPrincipal: number;
+  idPersona: number;
+  mesCierre: number;
+  nombre: string;
+  numeroDocumento: string;
+  periodoActividadPrincipal: number;
+  tipoClave: string;
+  tipoDocumento: string;
+  tipoPersona: string;
+}
+
+interface Constancia {
+  nombre: string;
+  apellido: string;
+  direccion: string;
+  localidad: string;
+  codPostal: string;
+  provincia: string;
+  tipoClave: string;
+  tipoPersona: string;
+  idPersona: string;
+  razonSocial: string;
+  impuesto: string;
+}
+
 router.get("/afip", async (req, res) => {
   try {
     const service = req.query.service as string;
@@ -447,7 +492,7 @@ router.post("/afip/create-ticket", async (req, res) => {
       sign,
       invoiceData
     );
-    res.json({invoiceResponse,invoiceData});
+    res.json({ invoiceResponse, invoiceData });
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({ error: error.message });
@@ -616,13 +661,35 @@ router.get("/afip/persona", async (req, res) => {
         );
         res.json(personaInfo);
       } else {
-        const allInfo = await Promise.all(
+        const allInfoArray: AllInfo[] = await Promise.all(
           cuitList.map(
             async (documento: string) =>
               await wsa13Service.getCUIT(cuit, token, sign, documento)
           )
         );
-        res.json(allInfo);
+
+        const aggregateConstancia = (infoArray: AllInfo[]): Constancia => {
+          // Aggregate logic to combine information from multiple allInfo objects
+          const primaryInfo = infoArray[0]; // Assuming the first item as primary
+
+          return {
+            nombre: primaryInfo.nombre || "",
+            apellido: primaryInfo.apellido || "",
+            direccion: primaryInfo.domicilio[0]?.direccion || "",
+            localidad: primaryInfo.domicilio[0]?.localidad || "",
+            codPostal: primaryInfo.domicilio[0]?.codigoPostal || "",
+            provincia: primaryInfo.domicilio[0]?.descripcionProvincia || "",
+            tipoClave: primaryInfo.tipoClave || "",
+            tipoPersona: primaryInfo.tipoPersona || "",
+            idPersona: primaryInfo.idPersona.toString() || "",
+            razonSocial: `${primaryInfo.apellido}, ${primaryInfo.nombre}` || "",
+            impuesto: "Consumidor Final",
+          };
+        };
+
+        const constancia: Constancia = aggregateConstancia(allInfoArray);
+
+        res.json(constancia);
       }
     }
   } catch (error) {
