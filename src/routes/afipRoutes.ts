@@ -659,8 +659,7 @@ router.get("/afip/persona", async (req, res) => {
           sign,
           cuitList[0]
         );
-        res.json(personaInfo);
-      } else {
+
         const allInfoArray: AllInfo[] = await Promise.all(
           cuitList.map(
             async (documento: string) =>
