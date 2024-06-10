@@ -637,6 +637,22 @@ router.post("/afip/caea-consultar", async (req, res) => {
   }
 });
 
+const aggregateConstancia = (infoArray: AllInfo[]): Constancia[] => {
+  return infoArray.map((info: AllInfo) => ({
+    nombre: info.nombre || "",
+    apellido: info.apellido || "",
+    direccion: info.domicilio[0]?.direccion || "",
+    localidad: info.domicilio[0]?.localidad || "",
+    codPostal: info.domicilio[0]?.codigoPostal || "",
+    provincia: info.domicilio[0]?.descripcionProvincia || "",
+    tipoClave: info.tipoClave || "",
+    tipoPersona: info.tipoPersona || "",
+    idPersona: info.idPersona.toString() || "",
+    razonSocial: `${info.apellido}, ${info.nombre}` || "",
+    impuesto: "Consumidor Final",
+  }));
+};
+
 router.get("/afip/persona", async (req, res) => {
   try {
     const documento = req.query.documento as string;
@@ -671,7 +687,7 @@ router.get("/afip/persona", async (req, res) => {
           tipoPersona: personaInfo.tipoPersona || "",
           idPersona: personaInfo.idPersona.toString() || "",
           razonSocial: `${personaInfo.apellido}, ${personaInfo.nombre}` || "",
-          impuesto: "CONSUMIDOR FINAL",
+          impuesto: "Consumidor Final",
         };
 
         res.json(constancia);
@@ -683,28 +699,9 @@ router.get("/afip/persona", async (req, res) => {
           )
         );
 
-        const aggregateConstancia = (infoArray: AllInfo[]): Constancia => {
-          // Aggregate logic to combine information from multiple allInfo objects
-          const primaryInfo = infoArray[0]; // Assuming the first item as primary
+        const constancias: Constancia[] = aggregateConstancia(allInfoArray);
 
-          return {
-            nombre: primaryInfo.nombre || "",
-            apellido: primaryInfo.apellido || "",
-            direccion: primaryInfo.domicilio[0]?.direccion || "",
-            localidad: primaryInfo.domicilio[0]?.localidad || "",
-            codPostal: primaryInfo.domicilio[0]?.codigoPostal || "",
-            provincia: primaryInfo.domicilio[0]?.descripcionProvincia || "",
-            tipoClave: primaryInfo.tipoClave || "",
-            tipoPersona: primaryInfo.tipoPersona || "",
-            idPersona: primaryInfo.idPersona.toString() || "",
-            razonSocial: `${primaryInfo.apellido}, ${primaryInfo.nombre}` || "",
-            impuesto: "Consumidor Final",
-          };
-        };
-
-        const constancia: Constancia = aggregateConstancia(allInfoArray);
-
-        res.json(constancia);
+        res.json(constancias);
       } else {
         res.status(404).json({
           error: "No se encontró información para el documento proporcionado.",
