@@ -24,6 +24,7 @@ export class FECAESolicitar {
       ImpOpEx: invoiceData.ImpOpEx.toString(),
       ImpTrib: invoiceData.ImpTrib.toString(),
       ImpIVA: invoiceData.ImpIVA.toString(),
+      CondicionIVAReceptorId: invoiceData.CondicionIVAReceptorId?.toString(),
       Iva: invoiceData.Iva ? { AlicIva: invoiceData.Iva } : undefined,
       Tributos: invoiceData.Tributos
         ? { Tributo: invoiceData.Tributos }
